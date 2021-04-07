@@ -25,14 +25,14 @@ client = imagezmq.ImageHub()
 # non-blocking server connection
 server = imagezmq.ImageSender(connect_to = 'tcp://*:5566', REQ_REP = False)
 
-print("Started hub...")
+print("[INFO] Hub started!")
 while True:
     # receive image from client
     client_name, frame = client.recv_image()
     client.send_reply(b'OK')
 
     if client_name not in last_active_client.keys():
-        print("[INFO] receiving data from {}...".format(client_name))
+        print("[INFO] Receiving data from {}...".format(client_name))
     
     last_active_client[client_name] = datetime.now()
 
