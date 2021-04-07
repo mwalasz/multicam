@@ -45,6 +45,15 @@ while True:
     frame = imutils.resize(frame, width=400)
     (h, w) = frame.shape[:2]
 
+    # insert text about client name
+    cv2.putText(frame, client_id, (10, 25),
+		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+    #insert text about client count
+    client_number = str(list(last_active_time.keys()).index(client_id) + 1)
+    cv2.putText(frame, client_number, (w - 20, h - 10),
+		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255,0), 2)
+
     # save to all frames
     frames[client_id] = frame
 
@@ -55,16 +64,12 @@ while True:
     for montage in montages:
         server.send_image(client_id, montage)
 
-    # if current time *minus* last time when the active device check
-	# was made is greater than the threshold set then do a check
     if (datetime.now() - last_active_check).seconds > ACTIVITY_CHECK_TIME:
         print("[INFO] Activity check.")
-		# loop over all previously active devices
         for (client_id, ts) in list(last_active_time.items()):
             if (datetime.now() - ts).seconds > ACTIVITY_CHECK_TIME:
                 print("[INFO] lost connection to {}".format(client_id))
                 last_active_time.pop(client_id)
                 frames.pop(client_id) # remove frame from nonactive client
                 
-        # set the last active check time as current time
         last_active_check = datetime.now()
