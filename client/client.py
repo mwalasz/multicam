@@ -5,7 +5,7 @@ import imagezmq
 import argparse
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-ip", "--serverip", default="127.0.0.1", help="Server ip")
+ap.add_argument("-ip", "--serverip", default="127.0.0.1", help="ip address of streaming server")
 args = vars(ap.parse_args())
 
 # connection with hub
