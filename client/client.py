@@ -1,18 +1,25 @@
-"""send_image.py -- send PiCamera jpg stream.
-
-This program requires that the image receiving program be running first.
-"""
-
 import socket
 import time
 from imutils.video import VideoStream
 import imagezmq
+import argparse
 
-sender = imagezmq.ImageSender(connect_to='tcp://127.0.0.1:5555')
+ap = argparse.ArgumentParser()
+ap.add_argument("-ip", "--serverip", default="127.0.0.1", help="ip address of streaming server")
+args = vars(ap.parse_args())
 
-hostname = socket.gethostname()
-stream = VideoStream(usePiCamera=False).start()
+# connection with hub
+sender = imagezmq.ImageSender(connect_to='tcp://{}:5555'.format(args["serverip"]))
+
+host_name = socket.gethostname()
+host_ip = socket.gethostbyname(host_name)
+host_id = "[{}/{}]".format(host_name, host_ip)
+print("[INFO] Client started! Name: {}, IP: {}".format(host_name, host_ip))
+
+stream = VideoStream().start()
 time.sleep(2.0)  # allow camera sensor to warm up
+
+print("[INFO] Streaming now...")
 while True:
-    image = stream.read()
-    sender.send_image(hostname, image)
+    frame = stream.read()
+    sender.send_image(host_id, frame)
