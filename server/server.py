@@ -8,7 +8,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--port", default=4000, help="Port on which server starts")
 args = vars(ap.parse_args())
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(format="[%(levelname)s][%(asctime)s][server]: %(message)s", level=logging.INFO)
 logging.info("Trying to start server on port {}".format(args["port"]))
 
 def sendImagesToWeb():
