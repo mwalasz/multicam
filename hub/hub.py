@@ -4,15 +4,25 @@ import imagezmq
 from datetime import datetime
 import imutils
 import numpy as np
+import argparse
+import logging
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-r", "--rows", default=2, help="No. of rows created in resulting stream")
+ap.add_argument("-c", "--cols", default=2, help="No. of columns created in resulting stream")
+args = vars(ap.parse_args())
 
 # number of clients in final stream change for parameters
-ROWS = 2
-COLS = 2
+ROWS = int(args["rows"]) 
+COLS = int(args["cols"])
 CLIENTS_NUMBER = ROWS * COLS
 
 ACTIVITY_CHECK_PERIOD = 5
 # how often will the activity be checked
 ACTIVITY_CHECK_TIME = CLIENTS_NUMBER * ACTIVITY_CHECK_PERIOD
+
+logging.basicConfig(format="[%(levelname)s][%(asctime)s][hub]: %(message)s", level=logging.INFO)
+logging.info("Resulting stream will use {} row(s) and {} column(s)".format(args["rows"], args["cols"]))
 
 def processImage(image):
     # somehow process image
@@ -30,7 +40,7 @@ client = imagezmq.ImageHub()
 # non-blocking server connection
 server = imagezmq.ImageSender(connect_to = 'tcp://*:5566', REQ_REP = False)
 
-print("[INFO] Hub started!")
+logging.info("Hub started")
 while True:
     # receive image from client
     client_id, frame = client.recv_image()
@@ -65,10 +75,10 @@ while True:
         server.send_image(client_id, montage)
 
     if (datetime.now() - last_active_check).seconds > ACTIVITY_CHECK_TIME:
-        print("[INFO] Activity check.")
+        logging.info("Activity check")
         for (client_id, ts) in list(last_active_time.items()):
             if (datetime.now() - ts).seconds > ACTIVITY_CHECK_TIME:
-                print("[INFO] lost connection to {}".format(client_id))
+                logging.info("Lost connection with {}".format(client_id))
                 last_active_time.pop(client_id)
                 frames.pop(client_id) # remove frame from nonactive client
                 
