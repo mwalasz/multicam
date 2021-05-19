@@ -1,6 +1,15 @@
 import cv2
 from flask import Flask, Response
 import imagezmq
+import argparse
+import logging
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--port", default=4000, help="Port on which server starts")
+args = vars(ap.parse_args())
+
+logging.basicConfig(format="[%(levelname)s][%(asctime)s][server]: %(message)s", level=logging.INFO)
+logging.info("Trying to start server on port {}".format(args["port"]))
 
 def sendImagesToWeb():
     # When we have incoming request, create a receiver and subscribe to a publisher
@@ -19,4 +28,4 @@ app = Flask(__name__)
 def index():
     return Response(sendImagesToWeb(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-app.run(host='0.0.0.0', port=4000, debug=True)
+app.run(host='0.0.0.0', port=args["port"], debug=True)
