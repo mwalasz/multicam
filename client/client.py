@@ -22,6 +22,7 @@ sender = imagezmq.ImageSender(connect_to='tcp://{}:5555'.format(args["serverip"]
 logging.basicConfig(format="[%(levelname)s][%(asctime)s][{}]: %(message)s".format(args["name"]), level=logging.INFO)
 
 logging.info("Client started! Name: {}, IP: {}".format(args["name"], host_ip))
+logging.info("Trying to start stream...")
 
 try:
     stream = cv2.VideoCapture(0)
@@ -29,12 +30,12 @@ except:
     logging.error("Failed to open camera - exiting")
     close()
 
-logging.info("Starting stream...")
 if stream.isOpened():
     logging.info("Successfully started stream")
 else:
     logging.error("Failed to start stream - exiting")
     close(-1)
+
 video_watermark = "[{}]".format(args["name"])
 
 try:
