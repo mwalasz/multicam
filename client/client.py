@@ -5,6 +5,11 @@ import argparse
 import logging
 import cv2
 
+def close(code = 0):
+    logging.info("Closing stream...")
+    stream.release()
+    exit(code)
+
 ap = argparse.ArgumentParser()
 ap.add_argument("-ip", "--serverip", default="127.0.0.1", help="ip address of streaming server")
 host_name = socket.gethostname()
@@ -22,22 +27,24 @@ try:
     stream = cv2.VideoCapture(0)
 except:
     logging.error("Failed to open camera - exiting")
-    exit()
-
-logging.info("Warming camera sensor")
-time.sleep(2.0)  # allow camera sensor to warm up
+    close()
 
 logging.info("Starting stream...")
 if stream.isOpened():
     logging.info("Successfully started stream")
 else:
     logging.error("Failed to start stream - exiting")
-    exit(-1)
+    close(-1)
 video_watermark = "[{}]".format(args["name"])
-while True:
-    captured, frame = stream.read()
-    if not captured:
-        logging.error("Failed to capture current frame")
-    else:
-        sender.send_image(video_watermark, frame)
+
+try:
+    while True:
+        captured, frame = stream.read()
+        if not captured:
+            logging.error("Failed to capture current frame")
+            break;
+        else:
+            sender.send_image(video_watermark, frame)
+except:
+    close(-1)
         
