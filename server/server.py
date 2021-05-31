@@ -11,9 +11,10 @@ args = vars(ap.parse_args())
 logging.basicConfig(format="[%(levelname)s][%(asctime)s][server]: %(message)s", level=logging.INFO)
 logging.info("Trying to start server on port {}".format(args["port"]))
 
+receiver = imagezmq.ImageHub(open_port='tcp://localhost:5566', REQ_REP = False)
+
 def sendImagesToWeb():
     # When we have incoming request, create a receiver and subscribe to a publisher
-    receiver = imagezmq.ImageHub(open_port='tcp://localhost:5566', REQ_REP = False)
     while True:
         # Pull an image from the queue
         camName, frame = receiver.recv_image()
