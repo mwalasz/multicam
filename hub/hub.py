@@ -10,6 +10,7 @@ import logging
 ap = argparse.ArgumentParser()
 ap.add_argument("-r", "--rows", default=2, help="No. of rows created in resulting stream")
 ap.add_argument("-c", "--cols", default=2, help="No. of columns created in resulting stream")
+ap.add_argument("-d", "--dynamic", default=False, action="store_true", help="Enable dynamic resizing resulting video stream basing on clients count")
 args = vars(ap.parse_args())
 
 # number of clients in final stream change for parameters
@@ -22,11 +23,10 @@ ACTIVITY_CHECK_PERIOD = 5
 ACTIVITY_CHECK_TIME = CLIENTS_NUMBER * ACTIVITY_CHECK_PERIOD
 
 logging.basicConfig(format="[%(levelname)s][%(asctime)s][hub]: %(message)s", level=logging.INFO)
-logging.info("Resulting stream will use {} row(s) and {} column(s)".format(args["rows"], args["cols"]))
-
-def processImage(image):
-    # somehow process image
-    pass
+if not args["dynamic"]:
+    logging.info("Resulting stream will use {} row(s) and {} column(s)".format(args["rows"], args["cols"]))
+else:
+    logging.info("Resulting stream will be resized dynamically")
 
 # frames from all clients
 frames = {}
@@ -47,16 +47,20 @@ while True:
     client.send_reply(b'OK')
 
     if client_id not in last_active_time.keys():
-        print("[INFO] Receiving data from {}...".format(client_id))
+        logging.info("New client with id {} connected".format(client_id))
     
     last_active_time[client_id] = datetime.now()
 
+    clients_count = len(last_active_time.keys())
+
     # prepare received frame
-    frame = imutils.resize(frame, width=400)
+    if clients_count != 1:
+        frame = imutils.resize(frame, width=400)
+    
     (h, w) = frame.shape[:2]
 
-    # insert text about client name
-    cv2.putText(frame, client_id, (10, 25),
+    # insert text about client name and current timestamp
+    cv2.putText(frame, "{} {}".format(client_id, str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))), (10, 25),
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     #insert text about client count
@@ -68,11 +72,25 @@ while True:
     frames[client_id] = frame
 
     # create montage from all frames
-    montages = imutils.build_montages(frames.values(), (w, h), (ROWS, COLS))
+    if not args["dynamic"] and clients_count != 1:
+        montages = imutils.build_montages(frames.values(), (w, h), (COLS, ROWS))
+    elif args["dynamic"] and clients_count != 1:
+        columns = 3 if clients_count >= 3 else 2
+        remainer = 0
+        if columns == 3 and clients_count % 3 != 0:
+            remainer = 1
+        elif columns == 2 and clients_count % 2 != 0:
+            remainer = 1
+        rows = clients_count // 3 if columns == 3 else clients_count // 2
+        rows += remainer
+        montages = imutils.build_montages(frames.values(), (w, h), (columns, rows))
     
     # send built montage
-    for montage in montages:
-        server.send_image(client_id, montage)
+    if clients_count == 1:
+        server.send_image(client_id, frame)
+    else:
+        for montage in montages:
+            server.send_image(client_id, montage)
 
     if (datetime.now() - last_active_check).seconds > ACTIVITY_CHECK_TIME:
         logging.info("Activity check")

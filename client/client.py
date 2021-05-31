@@ -14,7 +14,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-ip", "--serverip", default="127.0.0.1", help="ip address of streaming server")
 host_name = socket.gethostname()
 host_ip = socket.gethostbyname(host_name)
-ap.add_argument("-n", "--name", default="{}/{}".format(host_name, host_ip), help="Name of client which will be printed on streamed video")
+ap.add_argument("-n", "--name", default="{}/{}".format(host_name, host_ip), help="Name of client which will be printed on streamed video, default = [{hostname}/{IP}]")
 args = vars(ap.parse_args())
 
 # connection with hub
