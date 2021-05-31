@@ -8,8 +8,8 @@ import argparse
 import logging
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-r", "--rows", default=2, help="No. of rows created in resulting stream")
-ap.add_argument("-c", "--cols", default=2, help="No. of columns created in resulting stream")
+ap.add_argument("-r", "--rows", default=2, help="No. of rows created in resulting stream, default = 2")
+ap.add_argument("-c", "--cols", default=2, help="No. of columns created in resulting stream, default = 2")
 ap.add_argument("-d", "--dynamic", default=False, action="store_true", help="Enable dynamic resizing resulting video stream basing on clients count")
 args = vars(ap.parse_args())
 
