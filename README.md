@@ -1,4 +1,7 @@
-# Multicam - application for CCTV monitoring system ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/mwalasz/multicam) ![GitHub top language](https://img.shields.io/github/languages/top/mwalasz/multicam) ![Github All Contributors](https://img.shields.io/github/all-contributors/mwalasz/multicam) ![GitHub last commit](https://img.shields.io/github/last-commit/mwalasz/multicam)
+# Multicam - application for CCTV monitoring system 
+![GitHub Contributors Image](https://contrib.rocks/image?repo=mwalasz/multicam)
+
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/mwalasz/multicam) ![GitHub top language](https://img.shields.io/github/languages/top/mwalasz/multicam) ![GitHub last commit](https://img.shields.io/github/last-commit/mwalasz/multicam)
 
 Multicam is a simple Python application consisting of HTTP server, hub and client. Its goal is to send frames captured from webcamera on device running client script to hub,
 which modifies received frames adding details about client's name, current timestamp and client's ordinal number starting from 1.
